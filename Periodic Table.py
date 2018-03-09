@@ -1,6 +1,7 @@
 from enum import Enum
 from re import findall
 
+
 class Element(Enum):
     H = ("Hydrogen", 1)
     He = ("Helium", 2)
@@ -30,18 +31,40 @@ class Element(Enum):
 
 class Chemical:
     def __init__(self, formula):
-        self.elements_as_string = findall("[A-Z][^A-Z]*", formula)
+        self.elements = findall("[A-Z][^A-Z]*", formula)
+        self.element_freq = {}
+
+        for element in self.elements:
+            if "^" in element:
+                freq = int(element[element.index("^") + 1:])
+                element = element[:element.index("^")]
+            else:
+                freq = 1
+
+            if element in self.element_freq:
+                self.element_freq[element] += freq
+            else:
+                self.element_freq[element] = freq
 
         self.elements = []
-        for element in self.elements_as_string:
+        for item in self.element_freq.items():
+            for i in range(item[1]):
+                self.elements.append(item[0])
+
+        self.elements_obj = []
+        for element in self.elements:
             try:
                 exec("self.element = Element.%s" % element)
             except AttributeError:
                 self.element = None
-            self.elements.append(self.element)
+            self.elements_obj.append(self.element)
 
     def __repr__(self):
-        return str(self.get_elements())
+        return str([element.get_symbol() for element in self.get_elements()])
 
     def get_elements(self):
-        return self.elements
+        return self.elements_obj
+
+
+chem = Chemical("H^4O^2F^1Ne^3")
+print(chem)
