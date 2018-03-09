@@ -1,5 +1,5 @@
 from enum import Enum
-
+from re import findall
 
 class Element(Enum):
     H = ("Hydrogen", 1)
@@ -26,3 +26,22 @@ class Element(Enum):
         return f'Element name: {self.get_name()}\n' \
                f'Element symbol: {self.get_symbol()}\n' \
                f'Atomic number: {self.get_atomic_num()}'
+
+
+class Chemical:
+    def __init__(self, formula):
+        self.elements_as_string = findall("[A-Z][^A-Z]*", formula)
+
+        self.elements = []
+        for element in self.elements_as_string:
+            try:
+                exec("self.element = Element.%s" % element)
+            except AttributeError:
+                self.element = None
+            self.elements.append(self.element)
+
+    def __repr__(self):
+        return str(self.get_elements())
+
+    def get_elements(self):
+        return self.elements
