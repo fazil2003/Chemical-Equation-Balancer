@@ -75,31 +75,31 @@ class Element(Enum):
 
 class Chemical:
     def __init__(self, formula):
-        self.elements = findall("[A-Z][^A-Z]*", formula)
-        self.element_freq = {}
+        self._elements = findall("[A-Z][^A-Z]*", formula)
+        self._element_freq = {}
 
         # Making frequency dictionary for elements
-        for element in self.elements:
+        for element in self._elements:
             if "^" in element:
                 freq = int(element[element.index("^") + 1:])
                 element = element[:element.index("^")]
             else:
                 freq = 1
 
-            if element in self.element_freq:
-                self.element_freq[element] += freq
+            if element in self._element_freq:
+                self._element_freq[element] += freq
             else:
-                self.element_freq[element] = freq
+                self._element_freq[element] = freq
 
         # Re-writing self.elements with only the element symbol
-        self.elements = []
-        for item in self.element_freq.items():
+        self._elements = []
+        for item in self._element_freq.items():
             for i in range(item[1]):
-                self.elements.append(item[0])
+                self._elements.append(item[0])
 
         # Making self.elements_obj to store actual Element objects instead of strings
         self.elements_obj = []
-        for element_name in self.elements:
+        for element_name in self._elements:
             if hasattr(Element, element_name):
                 self.element = getattr(Element, element_name)
             else:
@@ -115,7 +115,7 @@ class Chemical:
 
 class Reactants:
     def __init__(self, *chemicals):
-        self.elements, self.element_freq = Reactants.map_chemicals(chemicals)
+        self._elements, self._element_freq = Reactants.map_chemicals(chemicals)
 
     @classmethod
     def map_chemicals(cls, chemicals):
@@ -143,9 +143,15 @@ class Reactants:
         :return: A visual mapping of each element to its frequency
         """
         output = ""
-        for element in self.element_freq:
-            output += f"{element.get_symbol()} = {self.element_freq[element]}\n"
+        for element in self._element_freq:
+            output += f"{element.get_symbol()} = {self._element_freq[element]}\n"
         return output
+
+    def get_elements(self):
+        return self._elements
+
+    def get_element_frequency(self):
+        return self._element_freq
 
 
 c1 = Chemical("NaOH")
