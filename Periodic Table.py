@@ -67,7 +67,7 @@ class Element(Enum):
     def get_symbol(self):
         return self.name
 
-    def display_info(self):
+    def __repr__(self):
         return f'Element name: {self.get_name()}\n' \
                f'Element symbol: {self.get_symbol()}\n' \
                f'Atomic number: {self.get_atomic_num()}'
@@ -99,11 +99,11 @@ class Chemical:
 
         # Making self.elements_obj to store actual Element objects instead of strings
         self.elements_obj = []
-        for element in self.elements:
-            try:
-                exec("self.element = Element.%s" % element)
-            except AttributeError:
-                self.element = None
+        for element_name in self.elements:
+            if hasattr(Element, element_name):
+                self.element = getattr(Element, element_name)
+            else:
+                raise RuntimeError(f'Unknown element name {element_name}')
             self.elements_obj.append(self.element)
 
     def __repr__(self):
@@ -115,26 +115,40 @@ class Chemical:
 
 class Reactants:
     def __init__(self, *chemicals):
-        self.elements = []
+        self.elements, self.element_freq = Reactants.map_chemicals(chemicals)
+
+    @classmethod
+    def map_chemicals(cls, chemicals):
+        """
+        :param chemicals: A tuple of n chemicals
+        :return: array of all of the elements, dictionary of every element to its frequency
+        """
+        elements = []
         for chemical in chemicals:
             for element in chemical.get_elements():
-                self.elements.append(element)
+                elements.append(element)
 
-        self.element_freq = {}
-        for element in self.elements:
-            if element in self.element_freq:
-                self.element_freq[element] += 1
+        element_freq = {}
+        for element in elements:
+            if element in element_freq:
+                element_freq[element] += 1
             else:
-                self.element_freq[element] = 1
+                element_freq[element] = 1
+
+        return elements, element_freq
 
     def __repr__(self):
+        """
+        Repr method for Reactants
+        :return: A visual mapping of each element to its frequency
+        """
         output = ""
         for element in self.element_freq:
             output += f"{element.get_symbol()} = {self.element_freq[element]}\n"
         return output
 
 
-c1 = Chemical("H^2O")
-c2 = Chemical("BeO")
+c1 = Chemical("NaOH")
+c2 = Chemical("H^2")
 reactants = Reactants(c1, c2)
 print(reactants)
