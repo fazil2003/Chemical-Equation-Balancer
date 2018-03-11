@@ -153,8 +153,25 @@ class Reactants:
     def get_element_frequency(self):
         return self._element_freq
 
+    def get_chemicals(self):
+        return self._chemicals
 
-c1 = Chemical("NaOH")
+
+class BalancedEquation:
+    def __init__(self, reactant_1, reactant_2):
+        # If the reactants contain different elements, a ValueError is raised
+        if set(reactant_1.get_elements()) != set(reactant_2.get_elements()):
+            raise ValueError (f"[{reactant_1}] will never become [{reactant_2}]")
+
+        self._reactant_1 = reactant_1
+        self._reactant_2 = reactant_2
+
+
+c1 = Chemical("O^2")
 c2 = Chemical("H^2")
-reactants = Reactants(c1, c2)
-print(reactants.get_element_frequency())
+reactant1 = Reactants(c1, c2)
+
+c3 = Chemical("H^2O")
+reactant2 = Reactants(c3)
+
+be = BalancedEquation(reactant1, reactant2)
