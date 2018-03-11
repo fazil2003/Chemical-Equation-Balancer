@@ -68,9 +68,7 @@ class Element(Enum):
         return self.name
 
     def __repr__(self):
-        return f'Element name: {self.get_name()}\n' \
-               f'Element symbol: {self.get_symbol()}\n' \
-               f'Atomic number: {self.get_atomic_num()}'
+        return self.get_symbol()
 
 
 class Chemical:
@@ -159,4 +157,4 @@ class Reactants:
 c1 = Chemical("NaOH")
 c2 = Chemical("H^2")
 reactants = Reactants(c1, c2)
-print(reactants)
+print(reactants.get_element_frequency())
