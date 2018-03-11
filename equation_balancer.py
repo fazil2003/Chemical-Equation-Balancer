@@ -77,6 +77,7 @@ class Chemical:
     def __init__(self, formula):
         self._elements = findall("[A-Z][^A-Z]*", formula)
         self._element_freq = {}
+        self.formula = formula
 
         # Making frequency dictionary for elements
         for element in self._elements:
@@ -107,7 +108,7 @@ class Chemical:
             self.elements_obj.append(self.element)
 
     def __repr__(self):
-        return str([element.get_symbol() for element in self.elements_obj])
+        return self.formula
 
     def get_elements(self):
         return self.elements_obj
@@ -115,6 +116,7 @@ class Chemical:
 
 class Reactants:
     def __init__(self, *chemicals):
+        self._chemicals = chemicals
         self._elements, self._element_freq = Reactants.map_chemicals(chemicals)
 
     @classmethod
@@ -140,11 +142,11 @@ class Reactants:
     def __repr__(self):
         """
         Repr method for Reactants
-        :return: A visual mapping of each element to its frequency
+        :return: The elements written as a sum
         """
-        output = ""
-        for element in self._element_freq:
-            output += f"{element.get_symbol()} = {self._element_freq[element]}\n"
+        output = str(self._chemicals[0])
+        for chemical in self._chemicals[1:]:
+            output += f" + {chemical}"
         return output
 
     def get_elements(self):
