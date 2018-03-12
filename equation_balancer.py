@@ -78,17 +78,44 @@ class Chemical:
         self.formula = formula
 
         # Making frequency dictionary for elements
-        for element in self._elements:
+        atoms_in_parens = []
+        poly_ion_freq = None
+        atom_is_in_parens = False
+        for i in range(len(self._elements)):
+            element = self._elements[i]
+            # If the current element has a left paren, I must keep track of the coming elements
+            if "(" in element:
+                atom_is_in_parens = True
+                element = self._elements[i][:-1]
+                self._elements[i] = element
+            # If the current element has a right paren, the polyatomic ion contains all previous
+            # elements up until the last left paren
+            elif ")" in element:
+                poly_ion_freq = int(element[element.index(")") + 2:])
+                element = self._elements[i][:element.index(")")]
+                self._elements[i] = element
+
+            # If the current element has a caret symbol, I must note its frequency
             if "^" in element:
                 freq = int(element[element.index("^") + 1:])
                 element = element[:element.index("^")]
             else:
                 freq = 1
 
+            # If the current element is within parens, I must keep track of it
+            if atom_is_in_parens and "(" not in element:
+                atoms_in_parens.append(element)
+
             if element in self._element_freq:
                 self._element_freq[element] += freq
             else:
                 self._element_freq[element] = freq
+
+            # If I have finished noting the polyatomic ion, I multiply each atom
+            # in that ion according to its frequency
+            if poly_ion_freq is not None:
+                for e in atoms_in_parens[1:]:
+                    self._element_freq[e] *= poly_ion_freq
 
         # Re-writing self.elements with only the element symbol
         self._elements = []
@@ -170,12 +197,13 @@ def balance_equation(r1, r2):
             print(f"{element.get_name()}s are the same!")
 
 
-c1 = Chemical("H^2")
-c2 = Chemical("O^2")
+c1 = Chemical("BeSO^4")
+c2 = Chemical("CaO")
 reactant1 = Reactants(c1, c2)
 
-c3 = Chemical("H^2O")
-#c4 = Chemical("I^2")
-reactant2 = Reactants(c3)
+c3 = Chemical("Ca(SO^4)^3")
+c4 = Chemical("H(BeO)^2")
+reactant2 = Reactants(c3, c4)
 
-be = balance_equation(reactant1, reactant2)
+#be = balance_equation(reactant1, reactant2)
+print(c4._element_freq)
